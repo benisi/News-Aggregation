@@ -37,7 +37,7 @@ class NewsApiFetcherTest extends TestCase
             config('services.newsapi.endpoint') . '*' => Http::response($fakeApiResponse, 200),
         ]);
 
-        $fetcher = new NewsApiFetcher();
+        $fetcher = new NewsApiFetcher(['cnn']);
         $result = $fetcher->fetch(1);
 
         $this->assertInstanceOf(ArticleCollection::class, $result);
@@ -68,7 +68,7 @@ class NewsApiFetcherTest extends TestCase
             config('services.newsapi.endpoint') . '*' => Http::response($fakeErrorResponse, 429),
         ]);
 
-        $fetcher = new NewsApiFetcher();
+        $fetcher = new NewsApiFetcher(['cnn']);
 
         $this->expectException(MaximumArticleResultException::class);
 
@@ -88,7 +88,7 @@ class NewsApiFetcherTest extends TestCase
             config('services.newsapi.endpoint') . '*' => Http::response($fakeErrorResponse, 401),
         ]);
 
-        $fetcher = new NewsApiFetcher();
+        $fetcher = new NewsApiFetcher(['cnn']);
 
         $this->expectException(FailedToFetchArticleFromSourceException::class);
 

@@ -23,7 +23,7 @@ class ArticlesAggregatorTest extends TestCase
         $pushTimes = 0;
 
         foreach (DataSourceEnum::cases() as $source) {
-            $sourceBatches = $source->getSources();
+            $sourceBatches = $source->getFetchers();
             if ($sourceBatches) {
                 $pushTimes += count($sourceBatches);
             } else {
@@ -39,7 +39,13 @@ class ArticlesAggregatorTest extends TestCase
                 $fetcherProperty = $reflection->getProperty('fetcher');
                 $fetcherInstance = $fetcherProperty->getValue($job);
 
-                return $fetcherInstance instanceof ($source->getFetcher());
+                foreach ($source->getFetchers() as $fetcher) {
+                    if (!$fetcherInstance instanceof ($fetcher)) {
+                        return false;
+                    }
+                }
+
+                return true;
             });
         }
     }
