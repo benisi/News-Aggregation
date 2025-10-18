@@ -5,14 +5,18 @@ namespace App\Services\DataSources;
 use App\Collections\ArticleCollection;
 use App\DTOs\ArticleDTO;
 use App\Exceptions\FailedToFetchArticleFromSourceException;
+use App\Services\AuthorParsingService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 
 class NYTimesApiFetcher implements DataFetcherInterface
 {
     const SOURCE = 'The New York Times';
     const ARTICLES_PER_PAGE = 10;
+
+    public function __construct(protected AuthorParsingService $authorParser)
+    {
+    }
 
     public function fetch(int $page): ArticleCollection
     {
@@ -38,14 +42,11 @@ class NYTimesApiFetcher implements DataFetcherInterface
             ->map(function (array $article) {
                 $imageUrl = data_get($article, 'multimedia.default.url');
 
-                $author = Str::of(data_get($article, 'byline.original', ''))
-                    ->after('By ')
-                    ->title()
-                    ->whenEmpty(fn() => self::SOURCE . ' Staff');
+                $authors = data_get($article, 'byline.original', '');
 
                 return new ArticleDTO(
                     title: data_get($article, 'headline.main'),
-                    author: $author,
+                    authors: !empty($authors) ? $this->authorParser->parse($authors) : [self::SOURCE.' staff'],
                     source: self::SOURCE,
                     description: data_get($article, 'abstract'),
                     url: data_get($article, 'web_url'),

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Exceptions\MaximumArticleResultException;
 use App\Exceptions\SourceNotFoundException;
 use App\Models\Article;
+use App\Models\Author;
 use App\Models\Category;
 use App\Models\SourceAlias;
 use App\Services\DataSources\DataFetcherInterface;
@@ -53,10 +54,18 @@ class AggregateArticle implements ShouldQueue
                     ['slug' => Str::slug($categoryName)]
                 );
 
-                Article::updateOrCreate(
+                $savedArticle = Article::updateOrCreate(
                     ['url' => $article->url],
-                    array_merge($article->toArray(), ['category_id' => $category->id, 'source_id' => $sourceAlias->source_id]),
+                    array_merge($article->toArray(), [
+                        'category_id' => $category->id,
+                        'source_id' => $sourceAlias->source_id
+                    ]),
                 );
+
+                foreach ($article->authors as $author) {
+                    $fetchedAuthor = Author::firstOrCreate(['name' => $author, 'source_id' => $sourceAlias->source_id]);
+                    $savedArticle->authors()->attach($fetchedAuthor->id);
+                }
             });
         }
 
