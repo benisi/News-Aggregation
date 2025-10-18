@@ -13,21 +13,39 @@ enum DataSourceEnum: string
     case GUARDIAN = 'guardian';
     case NYTIMES = 'nytimes';
 
-    /** @return class-string<DataFetcherInterface> */
-    public function getFetcher(): string
+    /**
+     * Get an array of all fetcher instances required to process this source.
+     * This encapsulates the batching logic and dependency injection.
+     *
+     * @return DataFetcherInterface[]
+     */
+    public function getFetchers(): array
     {
         return match ($this) {
-            self::NEWSAPI => NewsApiFetcher::class,
-            self::GUARDIAN => GuardianApiFetcher::class,
-            self::NYTIMES => NYTimesApiFetcher::class
+            self::NEWSAPI => $this->getNewsApiFetchers(),
+            self::GUARDIAN => [app(GuardianApiFetcher::class)],
+            self::NYTIMES => [app(NYTimesApiFetcher::class)],
         };
     }
 
-    public function getSources(): array|false
+    /**
+     * A private helper method to build the batch-specific fetchers for NewsAPI.
+     * @return NewsApiFetcher[]
+     */
+    private function getNewsApiFetchers(): array
     {
-        return match ($this) {
-            self::NEWSAPI => array_chunk(config('news-sources.newsapi_ids'), 20),
-            default => false
-        };
+        $allSources = config('news-sources.newsapi_ids', []);
+        if (empty($allSources)) {
+            return [];
+        }
+
+        $sourceBatches = array_chunk($allSources, 20);
+
+        $fetchers = [];
+        foreach ($sourceBatches as $batch) {
+            $fetchers[] = app(NewsApiFetcher::class, ['sources' => $batch]);
+        }
+
+        return $fetchers;
     }
 }

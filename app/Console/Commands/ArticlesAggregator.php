@@ -10,35 +10,44 @@ class ArticlesAggregator extends Command
 {
     /**
      * The name and signature of the console command.
-     *
      * @var string
      */
-    protected $signature = 'articles:aggregate';
+    protected $signature = 'articles:aggregate {source?}';
 
     /**
      * The console command description.
-     *
      * @var string
      */
-    protected $description = 'poll articles from various data sources';
+    protected $description = 'Dispatches jobs to poll articles from various data sources';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        foreach (DataSourceEnum::cases() as $source) {
-            $fetcher = new ($source->getFetcher());
+        $sourceArgument = $this->argument('source');
+        $sourcesToProcess = [];
 
-            $bulkSources = $source->getSources();
+        if ($sourceArgument) {
+            $sourceEnum = DataSourceEnum::tryFrom($sourceArgument);
+            if (!$sourceEnum) {
+                $this->error("Invalid source '{$sourceArgument}'.");
+                $this->line('Available sources: newsapi, guardian, nytimes');
+                return self::FAILURE;
+            }
+            $sourcesToProcess = [$sourceEnum];
+        } else {
+            $sourcesToProcess = DataSourceEnum::cases();
+        }
 
-            if ($bulkSources) {
-                foreach ($source->getSources() as $sources) {
-                    dispatch(new AggregateArticle($fetcher, $sources));
-                }
-            } else {
+        foreach ($sourcesToProcess as $source) {
+            $fetchers = $source->getFetchers();
+            foreach ($fetchers as $fetcher) {
                 dispatch(new AggregateArticle($fetcher));
             }
         }
+
+        $this->info('Article aggregation jobs have been dispatched!');
+        return self::SUCCESS;
     }
 }
