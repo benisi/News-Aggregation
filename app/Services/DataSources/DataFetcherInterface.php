@@ -15,5 +15,5 @@ interface DataFetcherInterface
      * @throws FailedToFetchArticleFromSourceException
      * @throws MaximumArticleResultException
      */
-    public function fetch(int $page, array $sources = []): ArticleCollection;
+    public function fetch(int $page): ArticleCollection;
 }

@@ -14,7 +14,7 @@ class NYTimesApiFetcher implements DataFetcherInterface
     const SOURCE = 'The New York Times';
     const ARTICLES_PER_PAGE = 10;
 
-    public function fetch(int $page, array $sources = []): ArticleCollection
+    public function fetch(int $page): ArticleCollection
     {
         $apiPage = $page > 0 ? $page - 1 : 0;
         $daysToFetch = config('services.nytimes.days_to_fetch', 1);
