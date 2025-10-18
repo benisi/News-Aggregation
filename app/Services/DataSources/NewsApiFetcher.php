@@ -14,13 +14,14 @@ class NewsApiFetcher implements DataFetcherInterface
     protected string $apiKey;
 
     const MAXIMUM_RESULT_REACHED = "maximumResultsReached";
+    const RATE_LIMITING = "rateLimited";
     const PER_PAGE = 100;
 
-    public function __construct() {}
+    public function __construct(protected array $sources) {}
 
-    public function fetch(int $page, array $sources = []): ArticleCollection
+    public function fetch(int $page): ArticleCollection
     {
-        $trimmedSources = array_map('trim', $sources);
+        $trimmedSources = array_map('trim', $this->sources);
         $sourceString = implode(',', $trimmedSources);
 
         $response = Http::withHeader('X-Api-Key', config('services.newsapi.key'))
@@ -34,7 +35,7 @@ class NewsApiFetcher implements DataFetcherInterface
         $data = $response->json();
 
         if ($response->failed()) {
-            if (data_get($data, 'code') === self::MAXIMUM_RESULT_REACHED) {
+            if (in_array(data_get($data, 'code'), [self::MAXIMUM_RESULT_REACHED, self::RATE_LIMITING])) {
                 throw new MaximumArticleResultException();
             }
 
