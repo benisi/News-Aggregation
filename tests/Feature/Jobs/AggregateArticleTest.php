@@ -58,11 +58,11 @@ class AggregateArticleTest extends TestCase
 
         $this->fetcherMock
             ->shouldReceive('fetch')
-            ->with(1)
+            ->with(1, [])
             ->once()
             ->andReturn($articleCollection);
 
-        $job = new AggregateArticle($this->fetcherMock, 1);
+        $job = new AggregateArticle($this->fetcherMock, [], 1);
         $job->handle();
 
         $this->assertDatabaseHas('articles', [
@@ -97,7 +97,7 @@ class AggregateArticleTest extends TestCase
             ->once()
             ->andReturn($articleCollection);
 
-        $job = new AggregateArticle($this->fetcherMock, 1);
+        $job = new AggregateArticle($this->fetcherMock, [], 1);
         $job->handle();
 
         Queue::assertNotPushed(AggregateArticle::class);
@@ -115,7 +115,7 @@ class AggregateArticleTest extends TestCase
             ->once()
             ->andReturn($articleCollection);
 
-        $job = new AggregateArticle($this->fetcherMock, 1);
+        $job = new AggregateArticle($this->fetcherMock, [], 1);
         $job->handle();
 
         $this->assertDatabaseMissing('articles', [
