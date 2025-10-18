@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('source_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
-            $table->string('author')->nullable();
             $table->text('description')->nullable();
             $table->text('content')->nullable();
             $table->string('url', 767)->unique();

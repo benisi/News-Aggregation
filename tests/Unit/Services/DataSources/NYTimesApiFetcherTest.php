@@ -55,7 +55,7 @@ class NYTimesApiFetcherTest extends TestCase
             config('services.nytimes.url') . '*' => Http::response($fakeApiResponse),
         ]);
 
-        $fetcher = new NYTimesApiFetcher();
+        $fetcher = app(NYTimesApiFetcher::class);
         $result = $fetcher->fetch(1);
 
         $this->assertInstanceOf(ArticleCollection::class, $result);
@@ -67,7 +67,7 @@ class NYTimesApiFetcherTest extends TestCase
         $this->assertInstanceOf(ArticleDTO::class, $articleDto);
 
         $this->assertEquals('Test Headline', $articleDto->title);
-        $this->assertEquals('John Doe', $articleDto->author);
+        $this->assertEquals(['John Doe'], $articleDto->authors);
         $this->assertEquals('Technology', $articleDto->category);
         $this->assertEquals('https://www.nytimes.com/test-article.html', $articleDto->url);
     }
@@ -104,7 +104,7 @@ class NYTimesApiFetcherTest extends TestCase
         ];
 
         Http::fake(['*' => Http::response($fakeApiResponse)]);
-        $fetcher = new NYTimesApiFetcher();
+        $fetcher = app(NYTimesApiFetcher::class);
 
         $result = $fetcher->fetch(1);
 
@@ -121,7 +121,7 @@ class NYTimesApiFetcherTest extends TestCase
         ];
 
         Http::fake(['*' => Http::response($fakeErrorResponse, 401)]);
-        $fetcher = new NYTimesApiFetcher();
+        $fetcher = app(NYTimesApiFetcher::class);
 
         $this->expectException(FailedToFetchArticleFromSourceException::class);
 

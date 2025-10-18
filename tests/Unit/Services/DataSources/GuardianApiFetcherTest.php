@@ -41,7 +41,7 @@ class GuardianApiFetcherTest extends TestCase
             'content.guardianapis.com/*' => Http::response($fakeApiResponse),
         ]);
 
-        $fetcher = new GuardianApiFetcher();
+        $fetcher = app(GuardianApiFetcher::class);
         $result = $fetcher->fetch(1);
 
         $this->assertInstanceOf(ArticleCollection::class, $result, 'The result should be an ArticleCollection.');
@@ -53,7 +53,7 @@ class GuardianApiFetcherTest extends TestCase
         $this->assertInstanceOf(ArticleDTO::class, $articleDto, 'The item in the collection should be an ArticleDTO.');
 
         $this->assertEquals('Test Article Title', $articleDto->title);
-        $this->assertEquals('Jane Doe', $articleDto->author);
+        $this->assertEquals(['Jane Doe'], $articleDto->authors);
         $this->assertEquals('The Guardian', $articleDto->source);
         $this->assertEquals('Technology', $articleDto->category);
         $this->assertEquals('https://www.theguardian.com/test-article', $articleDto->url);

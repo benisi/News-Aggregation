@@ -5,6 +5,7 @@ namespace App\Services\DataSources;
 use App\Collections\ArticleCollection;
 use App\DTOs\ArticleDTO;
 use App\Exceptions\FailedToFetchArticleFromSourceException;
+use App\Services\AuthorParsingService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -12,6 +13,8 @@ use Illuminate\Support\Str;
 class GuardianApiFetcher implements DataFetcherInterface
 {
     const SOURCE = 'The Guardian';
+
+    public function __construct(protected AuthorParsingService $authorParser) {}
 
     public function fetch(int $page): ArticleCollection
     {
@@ -43,7 +46,7 @@ class GuardianApiFetcher implements DataFetcherInterface
 
                 return new ArticleDTO(
                     title: data_get($article, 'webTitle'),
-                    author: $authorTag ? $authorTag['webTitle'] : 'Guardian staff',
+                    authors: $authorTag ? $this->authorParser->parse($authorTag['webTitle']) : ['Guardian staff'],
                     source: self::SOURCE,
                     description: Str::limit(strip_tags(data_get($article, 'fields.bodyText')), 250),
                     url: data_get($article, 'webUrl'),
