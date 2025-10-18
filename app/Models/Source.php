@@ -28,4 +28,9 @@ class Source extends Model
     {
         return $this->hasMany(SourceAlias::class);
     }
+
+    public function authors(): HasMany
+    {
+        return $this->hasMany(Author::class);
+    }
 }
