@@ -11,7 +11,7 @@ class ArticleDTO
         public ?string $content,
         public string $source,
         public ?string $category,
-        public ?string $author,
+        public array $authors,
         public ?string $description,
         public string $published_at,
         public string $url,
@@ -23,7 +23,6 @@ class ArticleDTO
         return [
             'source' => $this->source,
             'title' => $this->title,
-            'author' => $this->author,
             'description' => $this->description,
             'content' => $this->content ?? '',
             'url' => $this->url,

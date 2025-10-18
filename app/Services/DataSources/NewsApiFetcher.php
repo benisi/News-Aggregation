@@ -6,6 +6,7 @@ use App\Collections\ArticleCollection;
 use App\DTOs\ArticleDTO;
 use App\Exceptions\FailedToFetchArticleFromSourceException;
 use App\Exceptions\MaximumArticleResultException;
+use App\Services\AuthorParsingService;
 use Illuminate\Support\Facades\Http;
 
 class NewsApiFetcher implements DataFetcherInterface
@@ -17,7 +18,7 @@ class NewsApiFetcher implements DataFetcherInterface
     const RATE_LIMITING = "rateLimited";
     const PER_PAGE = 100;
 
-    public function __construct(protected array $sources) {}
+    public function __construct(protected AuthorParsingService $authorParser, protected array $sources) {}
 
     public function fetch(int $page): ArticleCollection
     {
@@ -46,7 +47,7 @@ class NewsApiFetcher implements DataFetcherInterface
             ->map(function (array $article) {
                 return new ArticleDTO(
                     title: $article['title'],
-                    author: $article['author'],
+                    authors: !empty($article['author']) ? $this->authorParser->parse($article['author']) : [$article['source']['name'] . ' staff'],
                     source: $article['source']['name'],
                     description: $article['description'],
                     url: $article['url'] ?? null,

@@ -5,6 +5,8 @@ namespace Tests\Feature\Jobs;
 use App\Collections\ArticleCollection;
 use App\DTOs\ArticleDTO;
 use App\Jobs\AggregateArticle;
+use App\Models\Article;
+use App\Models\Author;
 use App\Models\Source;
 use App\Models\SourceAlias;
 use App\Services\DataSources\DataFetcherInterface;
@@ -46,7 +48,7 @@ class AggregateArticleTest extends TestCase
             content: 'Test content.',
             source: $source->name,
             category: 'Technology',
-            author: 'John Doe',
+            authors: ['John Doe', 'Jane Smith'],
             description: 'A test description.',
             published_at: '2025-10-18T12:00:00Z',
             url: 'http://example.com/article-1',
@@ -75,6 +77,15 @@ class AggregateArticleTest extends TestCase
             'slug' => 'technology',
         ]);
 
+        $this->assertDatabaseHas('authors', ['name' => 'John Doe', 'source_id' => $source->id]);
+        $this->assertDatabaseHas('authors', ['name' => 'Jane Smith', 'source_id' => $source->id]);
+
+        $article = Article::first();
+        $author1 = Author::where('name', 'John Doe')->first();
+        $author2 = Author::where('name', 'Jane Smith')->first();
+        $this->assertDatabaseHas('article_author', ['article_id' => $article->id, 'author_id' => $author1->id]);
+        $this->assertDatabaseHas('article_author', ['article_id' => $article->id, 'author_id' => $author2->id]);
+
         Queue::assertPushed(AggregateArticle::class, function (AggregateArticle $job) {
             $reflection = new \ReflectionClass($job);
             $pageProperty = $reflection->getProperty('page');
@@ -87,7 +98,7 @@ class AggregateArticleTest extends TestCase
     {
         $source = Source::factory()->create();
         SourceAlias::factory()->create(['name' => $source->name]);
-        $fakeArticleDto = new ArticleDTO('Title', 'Content', $source->name, 'Cat', 'Author', 'Desc', '2025-01-01', 'http://a.com', null);
+        $fakeArticleDto = new ArticleDTO('Title', 'Content', $source->name, 'Cat', ['Author'], 'Desc', '2025-01-01', 'http://a.com', null);
 
         $articleCollection = new ArticleCollection([$fakeArticleDto]);
         $articleCollection->setIsLastPage(true); // This is the last page.
@@ -106,7 +117,7 @@ class AggregateArticleTest extends TestCase
     #[Test]
     public function it_skips_articles_when_source_alias_is_not_found()
     {
-        $fakeArticleDto = new ArticleDTO('Title', 'Content', 'Unknown Source', 'Cat', 'Author', 'Desc', '2025-01-01', 'http://a.com', null);
+        $fakeArticleDto = new ArticleDTO('Title', 'Content', 'Unknown Source', 'Cat', ['Author'], 'Desc', '2025-01-01', 'http://a.com', null);
         $articleCollection = new ArticleCollection([$fakeArticleDto]);
         $articleCollection->setIsLastPage(true);
 
@@ -121,7 +132,7 @@ class AggregateArticleTest extends TestCase
         $this->assertDatabaseMissing('articles', [
             'url' => 'http://a.com',
         ]);
-        
+
         Queue::assertNotPushed(AggregateArticle::class);
     }
 }
