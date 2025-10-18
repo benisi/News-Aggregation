@@ -13,7 +13,7 @@ class GuardianApiFetcher implements DataFetcherInterface
 {
     const SOURCE = 'The Guardian';
 
-    public function fetch(int $page): ArticleCollection
+    public function fetch(int $page, array $sources = []): ArticleCollection
     {
         $daysToFetch = config('services.guardian.days_to_fetch', 1);
         $fromDate = Carbon::now()->subDays($daysToFetch)->format('Y-m-d');

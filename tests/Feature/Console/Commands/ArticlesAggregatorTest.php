@@ -20,7 +20,18 @@ class ArticlesAggregatorTest extends TestCase
 
         $this->artisan('articles:aggregate')->assertExitCode(0);
 
-        Queue::assertPushed(AggregateArticle::class, count(DataSourceEnum::cases()));
+        $pushTimes = 0;
+
+        foreach (DataSourceEnum::cases() as $source) {
+            $sourceBatches = $source->getSources();
+            if ($sourceBatches) {
+                $pushTimes += count($sourceBatches);
+            } else {
+                $pushTimes++;
+            }
+        }
+
+        Queue::assertPushed(AggregateArticle::class, $pushTimes);
 
         foreach (DataSourceEnum::cases() as $source) {
             Queue::assertPushed(function (AggregateArticle $job) use ($source) {

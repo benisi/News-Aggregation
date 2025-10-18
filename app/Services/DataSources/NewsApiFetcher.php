@@ -18,14 +18,18 @@ class NewsApiFetcher implements DataFetcherInterface
 
     public function __construct() {}
 
-    public function fetch(int $page): ArticleCollection
+    public function fetch(int $page, array $sources = []): ArticleCollection
     {
-        $response = Http::get(config('services.newsapi.endpoint'), [
-            'apiKey' => config('services.newsapi.key'),
-            'language' => config('services.newsapi.language'),
-            'page' => $page,
-            'pageSize' => self::PER_PAGE,
-        ]);
+        $trimmedSources = array_map('trim', $sources);
+        $sourceString = implode(',', $trimmedSources);
+
+        $response = Http::withHeader('X-Api-Key', config('services.newsapi.key'))
+            ->get(config('services.newsapi.endpoint'), [
+                'language' => config('services.newsapi.language'),
+                'page' => $page,
+                'pageSize' => self::PER_PAGE,
+                'sources' => $sourceString
+            ]);
 
         $data = $response->json();
 
