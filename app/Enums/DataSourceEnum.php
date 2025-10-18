@@ -5,18 +5,21 @@ namespace App\Enums;
 use App\Services\DataSources\DataFetcherInterface;
 use App\Services\DataSources\GuardianApiFetcher;
 use App\Services\DataSources\NewsApiFetcher;
+use App\Services\DataSources\NYTimesApiFetcher;
 
 enum DataSourceEnum: string
 {
     case NEWSAPI = 'newsapi';
     case GUARDIAN = 'guardian';
+    case NYTIMES = 'nytimes';
 
     /** @return class-string<DataFetcherInterface> */
     public function getFetcher(): string
     {
         return match ($this) {
             self::NEWSAPI => NewsApiFetcher::class,
-            self::GUARDIAN => GuardianApiFetcher::class
+            self::GUARDIAN => GuardianApiFetcher::class,
+            self::NYTIMES => NYTimesApiFetcher::class
         };
     }
 
@@ -24,7 +27,7 @@ enum DataSourceEnum: string
     {
         return match ($this) {
             self::NEWSAPI => array_chunk(config('news-sources.newsapi_ids'), 20),
-            self::GUARDIAN => false
+            default => false
         };
     }
 }

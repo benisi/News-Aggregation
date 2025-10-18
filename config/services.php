@@ -44,5 +44,10 @@ return [
         'days_to_fetch' => env('GUARDIAN_DAYS_TO_FETCH', 1),
         'key' => env('GUARDIAN_API_KEY'),
         'url' => env('GUARDIAN_URL', 'https://content.guardianapis.com/search')
+    ],
+    'nytimes' => [
+        'key' => env('NYTIMES_API_KEY'),
+        'url' => env('NYTIMES_URL', 'https://api.nytimes.com/svc/search/v2/articlesearch.json'),
+        'days_to_fetch' => env('NYTIMES_DAYS_TO_FETCH', 1),
     ]
 ];
