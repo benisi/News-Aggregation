@@ -19,4 +19,12 @@ enum DataSourceEnum: string
             self::GUARDIAN => GuardianApiFetcher::class
         };
     }
+
+    public function getSources(): array|false
+    {
+        return match ($this) {
+            self::NEWSAPI => array_chunk(config('news-sources.newsapi_ids'), 20),
+            self::GUARDIAN => false
+        };
+    }
 }
