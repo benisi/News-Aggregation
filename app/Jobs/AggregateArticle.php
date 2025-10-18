@@ -21,7 +21,7 @@ class AggregateArticle implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected DataFetcherInterface $fetcher, protected int $page = 1) {}
+    public function __construct(protected DataFetcherInterface $fetcher, protected array $sources = [], protected int $page = 1) {}
 
     /**
      * Execute the job.
@@ -29,7 +29,7 @@ class AggregateArticle implements ShouldQueue
     public function handle(): void
     {
         try {
-            $articles = $this->fetcher->fetch($this->page);
+            $articles = $this->fetcher->fetch($this->page, $this->sources);
         } catch (MaximumArticleResultException) {
             return;
         }
@@ -61,7 +61,7 @@ class AggregateArticle implements ShouldQueue
         }
 
         if (!$articles->getIsLastPage()) {
-            dispatch(new AggregateArticle($this->fetcher, $this->page + 1));
+            dispatch(new AggregateArticle($this->fetcher, $this->sources, $this->page + 1));
         }
     }
 }

@@ -29,7 +29,16 @@ class ArticlesAggregator extends Command
     {
         foreach (DataSourceEnum::cases() as $source) {
             $fetcher = new ($source->getFetcher());
-            dispatch(new AggregateArticle($fetcher));
+
+            $bulkSources = $source->getSources();
+
+            if ($bulkSources) {
+                foreach ($source->getSources() as $sources) {
+                    dispatch(new AggregateArticle($fetcher, $sources));
+                }
+            } else {
+                dispatch(new AggregateArticle($fetcher));
+            }
         }
     }
 }

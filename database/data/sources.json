@@ -759,6 +759,14 @@
             "url": "https://www.theguardian.com/international",
             "category": "general",
             "aliases": []
+        },
+        {
+            "id": "new-york-times",
+            "name": "The New York Times",
+            "description": "Breaking news, world news, and multimedia from The New York Times.",
+            "url": "https://www.nytimes.com",
+            "category": "general",
+            "aliases": []
         }
     ]
 }
