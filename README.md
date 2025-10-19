@@ -32,7 +32,7 @@ Follow these steps to get the project up and running on your local machine.
 ### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/benisi/News-Aggregation.git](https://github.com/benisi/News-Aggregation.git)
+git clone https://github.com/benisi/News-Aggregation.git
 cd News-Aggregation
 ```
 
@@ -166,6 +166,6 @@ vendor/bin/sail artisan schedule:work
 ## API Documentation
 This project includes interactive API documentation powered by OpenAPI (Swagger). It allows you to view and test every endpoint directly from your browser.
 
-- URL: [http://localhost:8000/api/documentation](http://localhost:8000/api/documentation)
+- URL: [http://localhost:8000/swagger](http://localhost:8000/swagger)
 
 The server URL used in the documentation is automatically linked to the APP_URL you set in your .env file, making it easy to use across different environments.
