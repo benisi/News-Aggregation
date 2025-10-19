@@ -12,6 +12,10 @@ class SourceResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => $this->description,
+            'url' => $this->url,
+            'category' => new CategoryResource($this->whenLoaded('category')),
         ];
     }
 }
