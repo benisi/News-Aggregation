@@ -5,7 +5,7 @@ namespace App\DTOs;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class ArticleFilterDTO
+readonly class ArticleFilterDTO
 {
     const DEFAULT_PER_PAGE = 15;
 
