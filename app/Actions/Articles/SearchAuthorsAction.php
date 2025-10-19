@@ -21,7 +21,7 @@ class SearchAuthorsAction
             });
         }
 
-        $authors = $query->orderBy('name')->paginate($perPage);
+        $authors = $query->orderBy('name')->paginate($perPage)->withQueryString();
 
         return AuthorResource::collection($authors);
     }
