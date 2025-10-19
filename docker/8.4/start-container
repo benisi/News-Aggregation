@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+if [ "$SUPERVISOR_PHP_USER" != "root" ] && [ "$SUPERVISOR_PHP_USER" != "sail" ]; then
+    echo "You should set SUPERVISOR_PHP_USER to either 'sail' or 'root'."
+    exit 1
+fi
+
+if [ ! -z "$WWWUSER" ]; then
+    usermod -u $WWWUSER sail
+fi
+
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+
+# --- START: ADDED SECTION ---
+
+# Ensure storage directories and log files exist and have correct permissions
+# This fixes the scheduler and worker failing to start.
+if [ -d "/var/www/html/storage" ]; then
+    echo "Setting storage permissions..."
+    
+    # 1. Prepare the ownership specification string
+    OWNER_SPEC="$WWWUSER"
+    if [ ! -z "$WWWGROUP" ]; then
+        OWNER_SPEC="$WWWUSER:$WWWGROUP"
+        echo "Using full ownership spec: $OWNER_SPEC"
+    else
+        # Fallback: If WWWGROUP is empty, just use the user ID.
+        echo "WARNING: WWWGROUP is not set. Using user ID only for permissions."
+    fi
+    
+    # 2. Execute the chown command using the prepared spec
+    chown -R $OWNER_SPEC /var/www/html/storage
+    
+    # 3. Continue creating log files with gosu
+    gosu $WWWUSER mkdir -p /var/www/html/storage/logs
+    gosu $WWWUSER touch /var/www/html/storage/logs/worker.log
+    gosu $WWWUSER touch /var/www/html/storage/logs/scheduler.log
+fi
+
+# Run database migrations
+echo "Running database migrations..."
+gosu $WWWUSER php /var/www/html/artisan migrate --force
+
+# --- START: NEW COMMANDS ADDED ---
+
+# Run database seeders
+echo "Running database seeders..."
+gosu $WWWUSER php /var/www/html/artisan db:seed --force
+
+# Run article fetch command (assuming 'articles:aggregate' is your command name)
+echo "Running initial articles:aggregate command..."
+gosu $WWWUSER php /var/www/html/artisan articles:aggregate
+
+# --- END: NEW COMMANDS ADDED ---
+
+# --- END: ADDED SECTION ---
+
+
+if [ $# -gt 0 ]; then
+    if [ "$SUPERVISOR_PHP_USER" = "root" ]; then
+        exec "$@"
+    else
+        exec gosu $WWWUSER "$@"
+    fi
+else
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi
