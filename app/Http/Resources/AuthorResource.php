@@ -17,6 +17,7 @@ class AuthorResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'source' => new SourceResource($this->whenLoaded('source')),
         ];
     }
 }

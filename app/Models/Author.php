@@ -11,6 +11,8 @@ class Author extends Model
 {
     use HasFactory;
 
+    const FETCH_DATA_LIMIT = 100;
+
     protected $fillable = [
         'name',
         'source_id'
