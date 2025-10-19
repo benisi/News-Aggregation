@@ -38,7 +38,6 @@ return [
         'endpoint' => env('NEWS_API_ENDPOINT', 'https://newsapi.org/v2/top-headlines'),
         'key' => env('NEWS_API_KEY'),
         'language' => env('NEWS_API_LANGUAGE', 'en'),
-        'sources' => env('NEWS_API_SOURCES', "cnn,techcrunch")
     ],
     'guardian' => [
         'days_to_fetch' => env('GUARDIAN_DAYS_TO_FETCH', 1),
