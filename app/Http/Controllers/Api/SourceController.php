@@ -12,7 +12,7 @@ class SourceController extends Controller
     public function index()
     {
         $sources = Cache::remember(Source::CACHE_KEY, Source::CACHE_TTL, function () {
-            return Source::orderBy('name')->get();
+            return Source::with(['category'])->orderBy('name')->get();
         });
 
         return SourceResource::collection($sources)->response()
