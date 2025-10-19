@@ -24,7 +24,7 @@ Follow these steps to get the project up and running on your local machine.
 
 ### Prerequisites
 
-- PHP >= 8.1
+- PHP >= 8.2
 - Composer
 - A database (MySQL, PostgreSQL, etc.)
 - (Optional) Docker for running with Laravel Sail
