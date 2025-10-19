@@ -10,7 +10,10 @@ trait CreatesApiTokens
 
     public function createApiToken(User $user): string
     {
-        return $user->createToken(self::SANCTUM_TOKEN_NAME)->plainTextToken;
+        return $user->createToken(
+            name: self::SANCTUM_TOKEN_NAME,
+            expiresAt: now()->addMinutes(config('sanctum.expiration'))
+        )->plainTextToken;
     }
 
     public function getApiTokenName(): string
