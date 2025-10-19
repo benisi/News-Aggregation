@@ -135,4 +135,54 @@ class AggregateArticleTest extends TestCase
 
         Queue::assertNotPushed(AggregateArticle::class);
     }
+
+    #[Test]
+    public function it_syncs_authors_and_removes_old_associations_on_update()
+    {
+        $source = Source::factory()->create();
+        SourceAlias::factory()->create(['name' => $source->name, 'source_id' => $source->id]);
+
+        $authorA = Author::factory()->create(['name' => 'Author A', 'source_id' => $source->id]);
+        $authorB = Author::factory()->create(['name' => 'Author B', 'source_id' => $source->id]);
+        $authorC = Author::factory()->create(['name' => 'Author C', 'source_id' => $source->id]);
+
+        $initialArticle = Article::factory()->create(['url' => 'http://example.com/update-test', 'source_id' => $source->id]);
+        $initialArticle->authors()->sync([$authorA->id, $authorB->id]);
+
+        $this->assertDatabaseHas('article_author', ['article_id' => $initialArticle->id, 'author_id' => $authorA->id]);
+        $this->assertDatabaseHas('article_author', ['article_id' => $initialArticle->id, 'author_id' => $authorB->id]);
+        $this->assertDatabaseMissing('article_author', ['article_id' => $initialArticle->id, 'author_id' => $authorC->id]);
+
+        $updateDto = new ArticleDTO(
+            title: 'Updated Title',
+            content: 'New content.',
+            source: $source->name,
+            category: 'Technology',
+            authors: ['Author B', 'Author C'],
+            description: 'Updated description.',
+            published_at: '2025-10-18T12:00:00Z',
+            url: 'http://example.com/update-test',
+            image_url: 'http://example.com/image.jpg'
+        );
+        $updateCollection = new ArticleCollection([$updateDto]);
+        $updateCollection->setIsLastPage(true);
+
+        $this->fetcherMock
+            ->shouldReceive('fetch')
+            ->with(1)
+            ->once()
+            ->andReturn($updateCollection);
+
+        $job = new AggregateArticle($this->fetcherMock, 1);
+        $job->handle();
+
+        $updatedArticle = Article::where('url', 'http://example.com/update-test')->first();
+        $updatedAuthorC = Author::where('name', 'Author C')->first();
+
+        $this->assertDatabaseMissing('article_author', ['article_id' => $updatedArticle->id, 'author_id' => $authorA->id]);
+        $this->assertDatabaseHas('article_author', ['article_id' => $updatedArticle->id, 'author_id' => $authorB->id]);
+        $this->assertDatabaseHas('article_author', ['article_id' => $updatedArticle->id, 'author_id' => $updatedAuthorC->id]);
+
+        $this->assertEquals('Updated Title', $updatedArticle->title);
+    }
 }
