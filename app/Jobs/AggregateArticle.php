@@ -62,10 +62,14 @@ class AggregateArticle implements ShouldQueue
                     ]),
                 );
 
-                foreach ($article->authors as $author) {
-                    $fetchedAuthor = Author::firstOrCreate(['name' => $author, 'source_id' => $sourceAlias->source_id]);
-                    $savedArticle->authors()->attach($fetchedAuthor->id);
-                }
+                $authorIds = collect($article->authors)->map(function ($authorName) use ($sourceAlias) {
+                    return Author::firstOrCreate([
+                        'name' => $authorName,
+                        'source_id' => $sourceAlias->source_id
+                    ])->id;
+                })->all();
+
+                $savedArticle->authors()->sync($authorIds);
             });
         }
 
