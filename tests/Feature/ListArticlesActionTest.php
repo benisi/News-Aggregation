@@ -60,7 +60,13 @@ class ListArticlesActionTest extends TestCase
         ]);
         $this->article3->authors()->attach($this->author1->id);
 
-        Article::factory()->count(16)->create();
+        $source3 = Source::factory()->create(['name' => 'Other']);
+        $category3 = Category::factory()->create(['name' => 'Other']);
+        Article::factory()->count(16)->create([
+            'published_at' => now()->subDays(10),
+            'source_id' => $source3->id,
+            'category_id' => $category3->id,
+        ]);
     }
 
     #[Test]
