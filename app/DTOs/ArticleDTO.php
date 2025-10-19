@@ -4,7 +4,7 @@ namespace App\DTOs;
 
 use Carbon\Carbon;
 
-class ArticleDTO
+readonly class ArticleDTO
 {
     public function __construct(
         public string $title,
