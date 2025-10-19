@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Concerns;
+
+use App\Models\User;
+
+trait CreatesApiTokens
+{
+    protected const SANCTUM_TOKEN_NAME = 'frontend_access_token';
+
+    public function createApiToken(User $user): string
+    {
+        return $user->createToken(self::SANCTUM_TOKEN_NAME)->plainTextToken;
+    }
+
+    public function getApiTokenName(): string
+    {
+        return self::SANCTUM_TOKEN_NAME;
+    }
+}
