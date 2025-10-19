@@ -12,7 +12,7 @@ trait CreatesApiTokens
     {
         return $user->createToken(
             name: self::SANCTUM_TOKEN_NAME,
-            expiresAt: now()->addMinutes(config('sanctum.expiration'))
+            expiresAt: now()->addMinutes((int) config('sanctum.expiration'))
         )->plainTextToken;
     }
 
