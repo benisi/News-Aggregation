@@ -15,7 +15,6 @@ class CategoryController extends Controller
             return Category::orderBy('name')->get();
         });
 
-        return CategoryResource::collection($categories)->response()
-            ->header('Cache-Control', 'public, max-age=' . Category::CACHE_TTL);
+        return CategoryResource::collection($categories);
     }
 }

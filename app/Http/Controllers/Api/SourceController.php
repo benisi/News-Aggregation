@@ -15,7 +15,6 @@ class SourceController extends Controller
             return Source::with(['category'])->orderBy('name')->get();
         });
 
-        return SourceResource::collection($sources)->response()
-            ->header('Cache-Control', 'public, max-age=' . Source::CACHE_TTL);
+        return SourceResource::collection($sources);
     }
 }

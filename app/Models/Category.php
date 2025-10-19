@@ -11,7 +11,7 @@ class Category extends Model
     use HasFactory;
 
     const CACHE_KEY = "all_categories_list";
-    const CACHE_TTL = 3600;
+    const CACHE_TTL = 300; // 5 minute
 
     protected $fillable = ['name', 'slug'];
 
