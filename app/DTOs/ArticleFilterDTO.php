@@ -29,7 +29,7 @@ readonly class ArticleFilterDTO
         }
 
         $dateFrom = self::safelyParseDate($request->input('date_from'));
-        $dateTo = self::safelyParseDate($request->input('date_to'));
+        $dateTo = self::safelyParseDate($request->input('date_to'), false);
 
         $sourceIds = self::safelyConvertCommaSeparatedToIds($request->input('source_id'));
         $categoryIds = self::safelyConvertCommaSeparatedToIds($request->input('category_id'));
@@ -60,14 +60,22 @@ readonly class ArticleFilterDTO
             ->all();
     }
 
-    protected static function safelyParseDate(?string $dateString): ?string
+    protected static function safelyParseDate(?string $dateString, bool $start = true): ?string
     {
         if (empty($dateString)) {
             return null;
         }
 
         try {
-            return Carbon::parse($dateString)->format('Y-m-d');
+            $date = Carbon::parse($dateString);
+
+            if($start) {
+                $date->startOfDay();
+            } else {
+                $date->endOfDay();
+            }
+
+            return $date->toDateTimeString();
         } catch (\Exception) {
             return null;
         }

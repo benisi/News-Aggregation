@@ -47,7 +47,7 @@ class ListArticlesAction
             $query->where('published_at', '<=', $filters->dateTo);
         }
 
-        $articles = $query->paginate($filters->perPage);
+        $articles = $query->paginate($filters->perPage)->withQueryString();
 
         return ArticleResource::collection($articles);
     }
