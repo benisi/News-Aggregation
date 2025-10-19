@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Actions\Articles;
+namespace Tests\Feature;
 
 use App\Models\Article;
 use App\Models\Author;
@@ -72,23 +72,18 @@ class ListArticlesActionTest extends TestCase
     #[Test]
     public function it_returns_paginated_articles_and_applies_default_ordering()
     {
-        $response = $this->getJson('/api/articles');
+        $response = $this->getJson(route('api.articles.index'));
 
         $response->assertStatus(200);
-
-        // Assert default pagination (15 items) and total count
         $response->assertJsonCount(15, 'data');
         $response->assertJsonPath('meta.total', 19);
-
-        // Assert ordering is correct (latest first)
         $response->assertJsonPath('data.0.id', $this->article1->id);
     }
 
     #[Test]
     public function it_filters_by_a_single_source_id_correctly()
     {
-        // Query for only articles from Source 2 (CNN)
-        $response = $this->getJson("/api/articles?source_id={$this->source2->id}");
+        $response = $this->getJson(route('api.articles.index', ['source_id' => $this->source2->id]));
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -98,19 +93,17 @@ class ListArticlesActionTest extends TestCase
     #[Test]
     public function it_filters_by_multiple_categories_correctly()
     {
-        // Article 1 is Category 1, Article 3 is Category 2
-        $response = $this->getJson("/api/articles?category_id={$this->category1->id},{$this->category2->id}");
+        $categoryIds = "{$this->category1->id},{$this->category2->id}";
+        $response = $this->getJson(route('api.articles.index', ['category_id' => $categoryIds]));
 
         $response->assertStatus(200);
-        // Expect 3 articles (1, 2, 3) plus any others created in those categories
         $response->assertJsonPath('meta.total', 3);
     }
 
     #[Test]
     public function it_filters_by_author_id_correctly()
     {
-        // Query for articles by Author 2 (Jane Smith, only wrote Article 2)
-        $response = $this->getJson("/api/articles?author_id={$this->author2->id}");
+        $response = $this->getJson(route('api.articles.index', ['author_id' => $this->author2->id]));
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -120,8 +113,7 @@ class ListArticlesActionTest extends TestCase
     #[Test]
     public function it_applies_full_text_search_across_fields()
     {
-        // Search term "search term match." is only in Article 3's description
-        $response = $this->getJson("/api/articles?search=search term match.");
+        $response = $this->getJson(route('api.articles.index', ['search' => 'search term match.']));
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
@@ -131,10 +123,8 @@ class ListArticlesActionTest extends TestCase
     #[Test]
     public function it_applies_date_range_filter_correctly()
     {
-        // Article 1 is 1 hour ago. Article 3 is 5 days ago.
-        // Filter for articles newer than 1 day ago. Should only return Article 1.
         $startDate = now()->subDays(1)->format('Y-m-d');
-        $response = $this->getJson("/api/articles?date_from={$startDate}");
+        $response = $this->getJson(route('api.articles.index', ['date_from' => $startDate]));
 
         $response->assertStatus(200);
         $response->assertJsonPath('meta.total', 1);
@@ -144,7 +134,7 @@ class ListArticlesActionTest extends TestCase
     #[Test]
     public function it_applies_per_page_limit_correctly()
     {
-        $response = $this->getJson('/api/articles?per_page=5');
+        $response = $this->getJson(route('api.articles.index', ['per_page' => 5]));
 
         $response->assertStatus(200);
         $response->assertJsonCount(5, 'data');
@@ -154,8 +144,7 @@ class ListArticlesActionTest extends TestCase
     #[Test]
     public function it_returns_default_per_page_on_invalid_input()
     {
-        // Invalid input should fall back to the default of 15, as defined in the DTO
-        $response = $this->getJson('/api/articles?per_page=iiriririr');
+        $response = $this->getJson(route('api.articles.index', ['per_page' => 'iiriririr']));
 
         $response->assertStatus(200);
         $response->assertJsonPath('meta.per_page', 15);

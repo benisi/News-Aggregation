@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Controllers;
+namespace Tests\Feature;
 
 use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,7 +25,7 @@ class CategoryControllerTest extends TestCase
     #[Test]
     public function it_returns_all_categories_ordered_by_name()
     {
-        $response = $this->getJson('/api/categories');
+        $response = $this->getJson(route('api.categories.index'));
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -40,14 +40,18 @@ class CategoryControllerTest extends TestCase
     {
         $this->assertFalse(Cache::has(Category::CACHE_KEY));
 
-        $this->getJson('/api/categories');
+        $this->getJson(route('api.categories.index'));
         $this->assertTrue(Cache::has(Category::CACHE_KEY));
 
-        Category::factory()->create(['name' => 'Another Category']);
+        $newCategory = Category::factory()->create(['name' => 'Another Category']);
 
         $this->assertFalse(Cache::has(Category::CACHE_KEY));
 
-        $this->getJson('/api/categories');
+        $this->getJson(route('api.categories.index'));
         $this->assertTrue(Cache::has(Category::CACHE_KEY));
+
+        $newCategory->delete();
+
+        $this->assertFalse(Cache::has(Category::CACHE_KEY));
     }
 }

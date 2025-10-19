@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Controllers;
+namespace Tests\Feature;
 
 use App\Models\Source;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,7 +25,7 @@ class SourceControllerTest extends TestCase
     #[Test]
     public function it_returns_all_sources_ordered_by_name()
     {
-        $response = $this->getJson('/api/sources');
+        $response = $this->getJson(route('api.sources.index'));
 
         $response->assertStatus(200);
         $response->assertJsonCount(3, 'data');
@@ -40,14 +40,14 @@ class SourceControllerTest extends TestCase
     {
         $this->assertFalse(Cache::has(Source::CACHE_KEY));
 
-        $this->getJson('/api/sources');
+        $this->getJson(route('api.sources.index'));
         $this->assertTrue(Cache::has(Source::CACHE_KEY));
 
         $newSource = Source::factory()->create(['name' => 'New Source']);
 
         $this->assertFalse(Cache::has(Source::CACHE_KEY));
 
-        $this->getJson('/api/sources');
+        $this->getJson(route('api.sources.index'));
         $this->assertTrue(Cache::has(Source::CACHE_KEY));
 
         $newSource->delete();
