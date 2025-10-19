@@ -2,6 +2,7 @@
 
 namespace App\Actions\Auth;
 
+use App\Concerns\CreatesApiTokens;
 use App\DTOs\RegisterDTO;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterUserAction
 {
-    const TOKEN_NAME = 'frontend_access_token';
+    use CreatesApiTokens;
 
     public function execute(RegisterDTO $data): array
     {
@@ -20,7 +21,7 @@ class RegisterUserAction
                 'password' => Hash::make($data->password),
             ]);
 
-            $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+            $token = $this->createApiToken($user);
 
             return ['user' => $user, 'token' => $token];
         });
