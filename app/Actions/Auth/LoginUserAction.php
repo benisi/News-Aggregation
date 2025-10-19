@@ -2,6 +2,7 @@
 
 namespace App\Actions\Auth;
 
+use App\Concerns\CreatesApiTokens;
 use App\DTOs\LoginDTO;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -9,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class LoginUserAction
 {
-    const TOKEN_NAME = 'frontend_access_token';
+    use CreatesApiTokens;
 
     public function execute(LoginDTO $data): array
     {
@@ -22,9 +23,9 @@ class LoginUserAction
         /** @var User $user */
         $user = Auth::user();
 
-        $user->tokens()->where('name', self::TOKEN_NAME)->delete();
+        $user->tokens()->where('name', $this->getApiTokenName())->delete();
 
-        $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+        $token = $this->createApiToken($user);
 
         return ['user' => $user, 'token' => $token];
     }
