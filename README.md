@@ -105,11 +105,15 @@ If you have Docker installed, you can use Laravel Sail to run the entire applica
 1. Start the Sail Containers:
 
 ```bash
+./vendor/bin/sail build or ./vendor/bin/sail build --no-cache
+
 ./vendor/bin/sail up -d
+
+./vendor/bin/sail artisan key:generate
 ```
 This command starts the web server, database, and all other configured services in the background. Sail automatically runs a queue worker for you.
 
-sail may default to this url `news-aggregation-laravel.test` depending on your project folder and docs will be in `http://news-aggregation-laravel.test:8080/swagger`
+sail may default to this url [http://news-aggregation-laravel.test\api](http://news-aggregation-laravel.test\api) depending on your project folder and docs will be in [http://news-aggregation-laravel.test:8080/swagger](http://news-aggregation-laravel.test:8080/swagger)
 
 Note: When you run sail, all services is setup for, all you need to do is to add the `api keys` of your data source.
 the queues, the schedule and an initial data poll is done everytime you run `./vendor/bin/sail up -d`
@@ -162,6 +166,6 @@ vendor/bin/sail artisan schedule:work
 ## API Documentation
 This project includes interactive API documentation powered by OpenAPI (Swagger). It allows you to view and test every endpoint directly from your browser.
 
-- URL: http://localhost:8000/api/documentation
+- URL: [http://localhost:8000/api/documentation](http://localhost:8000/api/documentation)
 
 The server URL used in the documentation is automatically linked to the APP_URL you set in your .env file, making it easy to use across different environments.
