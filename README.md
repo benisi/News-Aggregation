@@ -109,6 +109,11 @@ If you have Docker installed, you can use Laravel Sail to run the entire applica
 ```
 This command starts the web server, database, and all other configured services in the background. Sail automatically runs a queue worker for you.
 
+sail may default to this url `news-aggregation-laravel.test` depending on your project folder and docs will be in `http://news-aggregation-laravel.test:8080/swagger`
+
+Note: When you run sail, all services is setup for, all you need to do is to add the `api keys` of your data source.
+the queues, the schedule and an initial data poll is done everytime you run `./vendor/bin/sail up -d`
+
 ## Data Aggregation
 The core of this project is the data aggregator, which is handled by an Artisan command.
 

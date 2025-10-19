@@ -13,7 +13,7 @@ class Source extends Model
     use HasFactory;
 
     const CACHE_KEY = 'all_sources_list';
-    const CACHE_TTL = 3600;
+    const CACHE_TTL = 300; // 5 minute
 
     protected $fillable = [
         'name',
