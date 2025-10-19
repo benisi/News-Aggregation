@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class SearchAuthorsAction
 {
-    public function execute(?string $searchTerm): AnonymousResourceCollection
+    public function execute(?string $searchTerm, int $perPage): AnonymousResourceCollection
     {
         $query = Author::query()->with('source');
 
@@ -21,7 +21,7 @@ class SearchAuthorsAction
             });
         }
 
-        $authors = $query->orderBy('name')->limit(Author::FETCH_DATA_LIMIT)->get();
+        $authors = $query->orderBy('name')->paginate($perPage);
 
         return AuthorResource::collection($authors);
     }

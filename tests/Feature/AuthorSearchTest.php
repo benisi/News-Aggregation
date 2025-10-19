@@ -46,7 +46,21 @@ class AuthorSearchTest extends TestCase
         $response = $this->getJson('/api/authors');
 
         $response->assertStatus(200);
+        $response->assertJsonCount(50, 'data');
+    }
+
+    #[Test]
+    public function it_applies_per_page_sanitation_and_capping()
+    {
+        $response = $this->getJson('/api/authors?per_page=150');
+        $response->assertJsonPath('meta.per_page', 100);
         $response->assertJsonCount(100, 'data');
+
+        $response = $this->getJson('/api/authors?per_page=bad_input');
+        $response->assertJsonPath('meta.per_page', 50);
+
+        $response = $this->getJson('/api/authors?per_page=-10');
+        $response->assertJsonPath('meta.per_page', 50);
     }
 
     #[Test]
