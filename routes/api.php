@@ -1,9 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ArticleController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return [
-        'status' => 'ok'
-    ];
-});
+Route::get('/articles', [ArticleController::class, 'index']);
