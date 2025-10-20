@@ -32,7 +32,8 @@ class ArticlesAggregator extends Command
             $sourceEnum = DataSourceEnum::tryFrom($sourceArgument);
             if (!$sourceEnum) {
                 $this->error("Invalid source '{$sourceArgument}'.");
-                $this->line('Available sources: newsapi, guardian, nytimes');
+                $availableSources = implode(',', array_map(fn($case) => $case->value, DataSourceEnum::cases()));
+                $this->line("Available sources: {$availableSources}");
                 return self::FAILURE;
             }
             $sourcesToProcess = [$sourceEnum];
