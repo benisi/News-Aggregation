@@ -206,6 +206,69 @@
                 }
             }
         },
+        "/api/user/feed": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Fetch personalized article feed",
+                "description": "Retrieves a paginated list of articles filtered automatically by the authenticated user's saved preferences (sources, categories, authors). Allows dynamic search override.",
+                "operationId": "getPersonalizedFeed",
+                "security": [{
+                    "bearerAuth": []
+                }],
+                "parameters": [{
+                        "name": "search",
+                        "in": "query",
+                        "description": "Optional keyword to search within the personalized feed.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "description": "Optional start date filter (YYYY-MM-DD).",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "The number of results per page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of articles. If no preferences are saved, it returns an empty data array with the `UNCONFIGURED_FEED` status in the `meta` field.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [{
+                                            "$ref": "#/components/schemas/PaginatedArticles"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/UnconfiguredFeedResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated."
+                    }
+                }
+            }
+        },
         "/api/sources": {
             "get": {
                 "tags": [
@@ -701,6 +764,37 @@
                     },
                     "meta": {
                         "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                }
+            },
+            "UnconfiguredFeedMeta": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "UNCONFIGURED_FEED"
+                        ],
+                        "example": "UNCONFIGURED_FEED",
+                        "description": "The specific status code indicating the user has no preferences set."
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Your personalized feed is unconfigured. Please select preferred sources, categories, or authors.",
+                        "description": "A user-friendly message explaining the status."
+                    }
+                }
+            },
+            "UnconfiguredFeedResponse": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {},
+                        "description": "An empty array of articles."
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/UnconfiguredFeedMeta"
                     }
                 }
             }

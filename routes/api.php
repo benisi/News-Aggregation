@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AuthorController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\SourceController;
 use App\Http\Controllers\Api\UserController;
 
@@ -21,4 +22,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user/preferences', [UserController::class, 'getPreferences'])->name('api.user.preferences.show');
     Route::post('/user/preferences', [UserController::class, 'storePreferences'])->name('api.user.preferences.store');
+    Route::get('/user/feed', [FeedController::class, 'index'])->name('api.user.feed.index');
 });
