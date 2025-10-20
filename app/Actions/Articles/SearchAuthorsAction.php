@@ -13,10 +13,12 @@ class SearchAuthorsAction
         $query = Author::query()->with('source');
 
         if ($searchTerm) {
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                    ->orWhereHas('source', function ($sourceQuery) use ($searchTerm) {
-                        $sourceQuery->where('name', 'like', "%{$searchTerm}%");
+            $lowerSearchTerm = strtolower($searchTerm);
+
+            $query->where(function ($q) use ($lowerSearchTerm) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$lowerSearchTerm}%"])
+                    ->orWhereHas('source', function ($sourceQuery) use ($lowerSearchTerm) {
+                        $sourceQuery->whereRaw('LOWER(name) LIKE ?', ["%{$lowerSearchTerm}%"]);
                     });
             });
         }

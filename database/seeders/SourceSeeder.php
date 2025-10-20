@@ -29,7 +29,7 @@ class SourceSeeder extends Seeder
 
             foreach ($sources as $sourceData) {
                 $source = Source::updateOrCreate(
-                    ['slug' => $sourceData->id],
+                    ['slug' => Str::slug($sourceData->name)],
                     [
                         'name'        => $sourceData->name,
                         'description' => $sourceData->description,
@@ -39,14 +39,14 @@ class SourceSeeder extends Seeder
                 );
 
                 SourceAlias::firstOrCreate(
-                    ['name' => $sourceData->name],
+                    ['slug' => Str::slug($sourceData->name)],
                     ['source_id' => $source->id]
                 );
 
                 if (isset($sourceData->aliases) && is_array($sourceData->aliases)) {
                     foreach ($sourceData->aliases as $aliasName) {
                         SourceAlias::firstOrCreate(
-                            ['name' => $aliasName],
+                            ['slug' => Str::slug($aliasName)],
                             ['source_id' => $source->id]
                         );
                     }

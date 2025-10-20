@@ -16,11 +16,13 @@ class ListArticlesAction
             ->latest('published_at');
 
         if ($filters->search) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('title', 'like', "%{$filters->search}%")
-                    ->orWhere('description', 'like', "%{$filters->search}%")
-                    ->orWhereHas('authors', function ($authorQuery) use ($filters) {
-                        $authorQuery->where('name', 'like', "%{$filters->search}%");
+            $searchTerm = strtolower($filters->search);
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(title) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereHas('authors', function ($authorQuery) use ($searchTerm) {
+                        $authorQuery->whereRaw('LOWER(name) LIKE ?', ["%{$searchTerm}%"]);
                     });
             });
         }

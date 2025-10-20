@@ -40,7 +40,7 @@ class AggregateArticle implements ShouldQueue
         }
 
         foreach ($articles as $article) {
-            $sourceAlias = SourceAlias::whereName($article->source)->first();
+            $sourceAlias = SourceAlias::whereSlug(Str::slug($article->source))->first();
 
             if (!$sourceAlias) {
                 report(new SourceNotFoundException("Source '{$article->source}' not found, add to the whilelisted sources"));
@@ -50,8 +50,8 @@ class AggregateArticle implements ShouldQueue
             DB::transaction(function () use ($article, $sourceAlias) {
                 $categoryName = $article->category ?? $sourceAlias->source->category->name;
                 $category = Category::firstOrCreate(
-                    ['name' => Str::lower($categoryName)],
-                    ['slug' => Str::slug($categoryName)]
+                    ['slug' => Str::slug($categoryName)],
+                    ['name' => Str::title($categoryName)]
                 );
 
                 $savedArticle = Article::updateOrCreate(
