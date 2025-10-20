@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('source_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('title');
+            $table->string('title'); // consider adding fulltext index to title and other text fields
             $table->text('description')->nullable();
             $table->text('content')->nullable();
             $table->string('url', 767)->unique();
             $table->string('image_url', 767)->nullable();
-            $table->timestamp('published_at')->nullable();
+            $table->timestamp('published_at')->index()->nullable();
             $table->timestamps();
         });
     }

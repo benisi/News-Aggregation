@@ -11,7 +11,7 @@ class SourceAlias extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'slug',
         'source_id',
     ];
 

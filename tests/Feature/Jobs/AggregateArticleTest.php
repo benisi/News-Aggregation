@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Queue;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
+use Illuminate\Support\Str;
 
 class AggregateArticleTest extends TestCase
 {
@@ -39,7 +40,7 @@ class AggregateArticleTest extends TestCase
     {
         $source = Source::factory()->create();
         SourceAlias::factory()->create([
-            'name' => $source->name,
+            'slug' => Str::slug($source->name),
             'source_id' => $source->id,
         ]);
 
@@ -73,7 +74,7 @@ class AggregateArticleTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('categories', [
-            'name' => 'technology',
+            'name' => 'Technology',
             'slug' => 'technology',
         ]);
 
@@ -97,7 +98,7 @@ class AggregateArticleTest extends TestCase
     public function it_does_not_dispatch_a_new_job_if_it_is_the_last_page()
     {
         $source = Source::factory()->create();
-        SourceAlias::factory()->create(['name' => $source->name]);
+        SourceAlias::factory()->create(['slug' => Str::slug($source->name)]);
         $fakeArticleDto = new ArticleDTO('Title', 'Content', $source->name, 'Cat', ['Author'], 'Desc', '2025-01-01', 'http://a.com', null);
 
         $articleCollection = new ArticleCollection([$fakeArticleDto]);
@@ -140,7 +141,7 @@ class AggregateArticleTest extends TestCase
     public function it_syncs_authors_and_removes_old_associations_on_update()
     {
         $source = Source::factory()->create();
-        SourceAlias::factory()->create(['name' => $source->name, 'source_id' => $source->id]);
+        SourceAlias::factory()->create(['slug' => Str::slug($source->name), 'source_id' => $source->id]);
 
         $authorA = Author::factory()->create(['name' => 'Author A', 'source_id' => $source->id]);
         $authorB = Author::factory()->create(['name' => 'Author B', 'source_id' => $source->id]);

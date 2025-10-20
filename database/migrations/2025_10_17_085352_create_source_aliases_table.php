@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('source_aliases', function (Blueprint $table) {
             $table->id();
             $table->foreignId('source_id')->constrained()->onDelete('cascade');
-            $table->string('name')->unique();
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
