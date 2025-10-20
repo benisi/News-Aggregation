@@ -21,22 +21,39 @@ readonly class ArticleFilterDTO
 
     public static function fromRequest(Request $request): self
     {
-        $perPageFromRequest = $request->input('per_page', self::DEFAULT_PER_PAGE);
+        $data = $request->all();
+
+        $data['sourceIds'] = $request->input('source_id');
+        $data['categoryIds'] = $request->input('category_id');
+        $data['authorIds'] = $request->input('author_id');
+        $data['dateFrom'] = $request->input('date_from');
+        $data['dateTo'] = $request->input('date_to');
+        $data['perPage'] = $request->input('per_page', self::DEFAULT_PER_PAGE);
+
+        return self::fromArray($data);
+    }
+
+    public static function fromArray(array $data): self
+    {
+        $perPageFromInput = $data['perPage'] ?? self::DEFAULT_PER_PAGE;
         $perPage = self::DEFAULT_PER_PAGE;
 
-        if ((int) $perPageFromRequest > 0) {
-            $perPage = max(1, min(100, (int) $perPageFromRequest));
+        if ((int) $perPageFromInput > 0) {
+            $perPage = max(1, min(100, (int) $perPageFromInput));
         }
 
-        $dateFrom = self::safelyParseDate($request->input('date_from'));
-        $dateTo = self::safelyParseDate($request->input('date_to'), false);
+        $sourceIds = self::safelyConvertCommaSeparatedToIds($data['source_id'] ?? $data['sourceIds'] ?? null);
+        $categoryIds = self::safelyConvertCommaSeparatedToIds($data['category_id'] ?? $data['categoryIds'] ?? null);
+        $authorIds = self::safelyConvertCommaSeparatedToIds($data['author_id'] ?? $data['authorIds'] ?? null);
 
-        $sourceIds = self::safelyConvertCommaSeparatedToIds($request->input('source_id'));
-        $categoryIds = self::safelyConvertCommaSeparatedToIds($request->input('category_id'));
-        $authorIds = self::safelyConvertCommaSeparatedToIds($request->input('author_id'));
+        $dateFromInput = $data['date_from'] ?? $data['dateFrom'] ?? null;
+        $dateToInput = $data['date_to'] ?? $data['dateTo'] ?? null;
+
+        $dateFrom = self::safelyParseDate($dateFromInput);
+        $dateTo = self::safelyParseDate($dateToInput, false);
 
         return new self(
-            search: $request->input('search'),
+            search: $data['search'] ?? null,
             sourceIds: $sourceIds,
             categoryIds: $categoryIds,
             dateFrom: $dateFrom,
